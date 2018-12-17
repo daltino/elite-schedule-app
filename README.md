@@ -9,8 +9,10 @@ To create Ionic 2 projects, you’ll need to install the latest version of the C
 ## Installation
 Install the dependencies and devDependencies and start the server.
 
-``` $ cd elite-schedule-app
-$ yarn install ```
+``` 
+$ cd elite-schedule-app
+$ yarn install
+```
 
 ## Running on Browser
 ```$ ionic serve```
