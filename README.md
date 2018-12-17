@@ -11,7 +11,7 @@ Install the dependencies and devDependencies and start the server.
 
 ``` 
 $ cd elite-schedule-app
-$ yarn install
+$ npm install
 ```
 
 ## Running on Browser
