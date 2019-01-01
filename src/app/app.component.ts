@@ -1,9 +1,12 @@
 import { Component, ViewChild } from '@angular/core';
-import { Nav, Platform } from 'ionic-angular';
+import { Events, Nav, Platform, LoadingController } from 'ionic-angular';
 import { StatusBar } from '@ionic-native/status-bar';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { MyTeamsPage } from '../pages/my-teams/my-teams';
 import { TournamentsPage } from '../pages/tournaments/tournaments';
+import { UserSettings } from '../providers/user-settings/user-settings';
+import { EliteApi } from '../providers/elite-api/elite-api';
+import { TeamHomePage } from '../pages/team-home/team-home';
 
 @Component({
   templateUrl: 'app.html'
@@ -11,11 +14,19 @@ import { TournamentsPage } from '../pages/tournaments/tournaments';
 export class MyApp {
   @ViewChild(Nav) nav: Nav;
 
+  favoriteTeams: any[];
   rootPage: any = MyTeamsPage;
 
   pages: Array<{title: string, component: any}>;
 
-  constructor(public platform: Platform, public statusBar: StatusBar, public splashScreen: SplashScreen) {
+  constructor(
+    private events: Events,
+    public platform: Platform,
+    public statusBar: StatusBar,
+    public splashScreen: SplashScreen,
+    public loadingController: LoadingController,
+    private eliteApi: EliteApi,
+    private userSettings: UserSettings) {
     this.initializeApp();
 
     // used for an example of ngFor and navigation
@@ -31,6 +42,9 @@ export class MyApp {
       // Here you can do any higher level native things you might need.
       this.statusBar.styleDefault();
       this.splashScreen.hide();
+      this.refreshFavorites();
+
+      this.events.subscribe('favorites:changed', () => this.refreshFavorites());
     });
   }
 
@@ -40,8 +54,21 @@ export class MyApp {
     this.nav.setRoot(page.component);
   }
 
+  refreshFavorites() {
+    this.favoriteTeams = this.userSettings.getAllFavorites();
+  }
+
   goHome() {
     this.nav.push(MyTeamsPage);
+  }
+
+  goToTeam(favorite) {
+    let loader = this.loadingController.create({
+      content: 'Getting data...',
+      dismissOnPageChange: true
+    });
+    loader.present();
+    this.eliteApi.getTournamentData(favorite.tournamentId).subscribe(l => this.nav.push(TeamHomePage, favorite.team));
   }
 
   goToTournaments() {
